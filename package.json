@@ -1,0 +1,45 @@
+{
+  "name": "amigo-secreto-natal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Amigo secreto com Next.js, Supabase e sorteio transacional",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/domain.test.ts tests/security.test.ts",
+    "test:db": "vitest run tests/database.test.ts",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm test && npm run build",
+    "test:integration": "vitest run tests/database.test.ts tests/service.test.ts tests/http.test.ts tests/auth.test.ts tests/api-integration.test.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
+    "lucide-react": "1.65.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.13",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.6.6",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "embedded-postgres": "18.6.0-beta.19",
+    "pg": "8.23.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  },
+  "type": "module"
+}
