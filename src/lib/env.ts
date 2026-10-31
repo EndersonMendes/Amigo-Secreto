@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { AppError } from "./errors";
+
 const schema = z.object({
   SUPABASE_URL: z.url(),
   SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
@@ -10,6 +11,7 @@ const schema = z.object({
   CODE_LOOKUP_SECRET: z.string().regex(/^[a-f0-9]{64}$/i),
   APP_URL: z.url(),
 });
+
 export function env() {
   const result = schema.safeParse({
     SUPABASE_URL: process.env.SUPABASE_URL,
@@ -20,23 +22,41 @@ export function env() {
     CODE_LOOKUP_SECRET: process.env.CODE_LOOKUP_SECRET,
     APP_URL: process.env.APP_URL,
   });
-  if (!result.success || result.data.CODE_LOOKUP_SECRET.toLowerCase() === result.data.RATE_LIMIT_SECRET.toLowerCase())
+
+  if (
+    !result.success ||
+    result.data.CODE_LOOKUP_SECRET.toLowerCase() ===
+      result.data.RATE_LIMIT_SECRET.toLowerCase()
+  ) {
+    // Registrar somente nomes de campos, nunca seus valores.
+    const reason = !result.success
+      ? [...new Set(
+          result.error.issues.map((issue) => String(issue.path[0]))
+        )].join(", ")
+      : "CODE_LOOKUP_SECRET e RATE_LIMIT_SECRET estão iguais";
+
+    console.error("[CONFIGURACAO_INVALIDA]", reason);
+
     throw new AppError(
       "SETUP_REQUIRED",
       503,
       "O evento ainda não está disponível. Peça ao administrador para conferir a configuração.",
     );
+  }
+
   if (
     process.env.NODE_ENV === "production" &&
     !["localhost", "127.0.0.1"].includes(
       new URL(result.data.APP_URL).hostname,
     ) &&
     !result.data.APP_URL.startsWith("https://")
-  )
+  ) {
     throw new AppError(
       "SETUP_REQUIRED",
       503,
       "O endereço do evento precisa usar HTTPS.",
     );
+  }
+
   return result.data;
 }
